@@ -1,0 +1,73 @@
+---
+- include_tasks: versioncheck.yml
+  when: submodules_versioncheck|bool
+
+- name: Install apache2
+  become: true
+  package:
+    name: apache2
+    state: present
+
+- name: Install apache2 auth modules
+  become: true
+  package:
+    name:
+      - libapache2-mod-jk
+      - libapache2-mod-proxy-uwsgi
+      - libapache2-mod-proxy-msrpc
+    state: present
+  notify: apache2 restart
+
+- name: Disable default virtualhost config
+  become: true
+  file:
+    path: /etc/apache2/sites-enabled/000-default.conf
+    state: absent
+  notify: apache2 restart
+  when: delete_default_apache2_config | bool
+
+- name: Enable proxy related modules
+  become: true
+  apache2_module:
+    name: "{{ item }}"
+    state: present
+  with_items:
+  - alias
+  - ratelimit
+  - rewrite
+  - headers
+  - proxy_ajp
+  - proxy_balancer
+  - proxy_connect
+  - proxy_express
+  - proxy_ftp
+  - proxy_html
+  - proxy_http
+  - proxy_scgi
+  - proxy_wstunnel
+  - ssl
+  - vhost_alias
+  - xml2enc
+  notify: apache2 restart
+
+- name: Enable auth related modules
+  become: true
+  apache2_module:
+    name: "{{ item }}"
+    state: present
+  with_items:
+  - auth_digest
+  - authnz_ldap
+  - ldap
+  notify: apache2 restart
+
+- name: Enable cache related modules
+  become: true
+  apache2_module:
+    name: "{{ item }}"
+    state: present
+  with_items:
+  - cache_disk
+  - cache
+  - file_cache
+  notify: apache2 restart

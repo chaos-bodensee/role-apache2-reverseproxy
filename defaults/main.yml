@@ -1,0 +1,6 @@
+---
+# version check for this role?
+submodules_versioncheck: true
+
+# delete default apache config?
+delete_default_apache2_config: false

@@ -1,0 +1,6 @@
+---
+- name: apache2 restart
+  become: true
+  systemd:
+    name: apache2
+    state: restarted
